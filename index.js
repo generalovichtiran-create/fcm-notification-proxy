@@ -6,68 +6,52 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Данные из вашего Firebase проекта
-const projectId = 'simplechat-a90ac';
-// Ваш серверный ключ (читается из переменной окружения)
-const accessToken = process.env.FCM_SERVER_KEY;
+// ========== НАСТРОЙКИ PUSHALL ==========
+// Замени на свои данные из личного кабинета pushall.ru
+const PUSHALL_ID = "6038";           // ← твой ID
+const PUSHALL_KEY = "a591d0443241c3bec0caba797b8df723";  // ← твой KEY
 
-// Функция для отправки уведомления через HTTP v1 API
-async function sendFcmV1(title, body, token) {
-    const url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
-
-    const message = {
-        message: {
-            token: token,
-            notification: {
-                title: title,
-                body: body
-            },
-            android: {
-                priority: "high",
-                notification: {
-                    click_action: "FLUTTER_NOTIFICATION_CLICK"
-                }
-            }
-        }
-    };
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(message)
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.error?.message || 'Unknown FCM error');
-    }
-    return data;
-}
-
+// Эндпоинт для отправки уведомления
 app.post('/send', async (req, res) => {
-    const { title, body, token } = req.body;
-
-    if (!token) {
-        return res.json({ success: false, error: 'Missing token' });
-    }
-
+    const { title, body } = req.body;
+    
+    console.log(`📨 Получен запрос: title=${title}, body=${body}`);
+    
     try {
-        const result = await sendFcmV1(title, body, token);
-        res.json({ success: true, data: result });
+        const pushAllData = new URLSearchParams();
+        pushAllData.append('type', 'self');
+        pushAllData.append('id', PUSHALL_ID);
+        pushAllData.append('key', PUSHALL_KEY);
+        pushAllData.append('title', title || 'Новое сообщение');
+        pushAllData.append('text', body || 'У вас новое сообщение');
+        pushAllData.append('url', 'https://officeprojects.ru'); // твой сайт
+        
+        const response = await fetch('https://pushall.ru/api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: pushAllData
+        });
+        
+        const data = await response.json();
+        console.log('PushAll ответ:', data);
+        
+        if (data.success) {
+            res.json({ success: true, message: 'Уведомление отправлено' });
+        } else {
+            res.json({ success: false, error: data.error });
+        }
     } catch (error) {
-        console.error("FCM Error:", error);
+        console.error('Ошибка:', error);
         res.json({ success: false, error: error.message });
     }
 });
 
+// Проверка работы сервера
 app.get('/ping', (req, res) => {
     res.json({ success: true, message: 'Server is running' });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`FCM proxy running on port ${PORT}`);
+    console.log(`PushAll proxy running on port ${PORT}`);
 });
