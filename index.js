@@ -8,8 +8,9 @@ app.use(express.json());
 
 // ========== НАСТРОЙКИ PUSHALL ==========
 // Замени на свои данные из личного кабинета pushall.ru
-const PUSHALL_ID = "6038";           // ← твой ID
-const PUSHALL_KEY = "a591d0443241c3bec0caba797b8df723";  // ← твой KEY
+// Стало (правильно — твои данные):
+const PUSHALL_ID = "159780";
+const PUSHALL_KEY = "ad366555718e6de23395ea03ec413ea9";
 
 // Эндпоинт для отправки уведомления
 app.post('/send', async (req, res) => {
