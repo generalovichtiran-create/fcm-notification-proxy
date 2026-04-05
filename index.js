@@ -6,13 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ========== НАСТРОЙКИ PUSHALL ==========
-// Замени на свои данные из личного кабинета pushall.ru
-// Стало (правильно — твои данные):
+// ========== ТВОИ ДАННЫЕ PUSHALL (SELF API) ==========
 const PUSHALL_ID = "159780";
 const PUSHALL_KEY = "ad366555718e6de23395ea03ec413ea9";
 
-// Эндпоинт для отправки уведомления
 app.post('/send', async (req, res) => {
     const { title, body } = req.body;
     
@@ -47,7 +44,6 @@ app.post('/send', async (req, res) => {
     }
 });
 
-// Проверка работы сервера
 app.get('/ping', (req, res) => {
     res.json({ success: true, message: 'Server is running' });
 });
