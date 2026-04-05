@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // ЭТОТ КЛЮЧ МЫ ЗАМЕНИМ ПОЗЖЕ!
-const FCM_SERVER_KEY = 'YOUR_KEY_HERE';
+const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 app.post('/send', async (req, res) => {
     const { title, body, token } = req.body;
